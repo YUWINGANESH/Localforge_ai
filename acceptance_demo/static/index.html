@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div id="root"></div>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+        class TaskForm extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = { title: '', description: '' };
+                this.handleChange = this.handleChange.bind(this);
+                this.handleSubmit = this.handleSubmit.bind(this);
+            }
+
+            handleChange(event) {
+                this.setState({ [event.target.name]: event.target.value });
+            }
+
+            handleSubmit(event) {
+                event.preventDefault();
+                fetch('/tasks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(this.state)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    this.setState({ title: '', description: '' });
+                    this.props.fetchTasks();
+                });
+            }
+
+            render() {
+                return (
+                    <form onSubmit={this.handleSubmit}>
+                        <div className="form-group">
+                            <label>Title</label>
+                            <input type="text" className="form-control" name="title" value={this.state.title} onChange={this.handleChange} required />
+                        </div>
+                        <div className="form-group">
+                            <label>Description</label>
+                            <textarea className="form-control" name="description" value={this.state.description} onChange={this.handleChange} required></textarea>
+                        </div>
+                        <button type="submit" className="btn btn-primary">Add Task</button>
+                    </form>
+                );
+            }
+        }
+
+        class TaskList extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = { tasks: [] };
+                this.fetchTasks = this.fetchTasks.bind(this);
+                this.deleteTask = this.deleteTask.bind(this);
+            }
+
+            componentDidMount() {
+                this.fetchTasks();
+            }
+
+            fetchTasks() {
+                fetch('/tasks')
+                .then(response => response.json())
+                .then(data => this.setState({ tasks: data }));
+            }
+
+            deleteTask(id) {
+                fetch(`/tasks/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        this.setState(prevState => ({
+                            tasks: prevState.tasks.filter(task => task.id !== id)
+                        }));
+                    }
+                });
+            }
+
+            render() {
+                return (
+                    <div className="container">
+                        <h1>Task Management</h1>
+                        <TaskForm fetchTasks={this.fetchTasks} />
+                        <ul className="list-group">
+                            {this.state.tasks.map(task => (
+                                <li key={task.id} className="list-group-item">
+                                    {task.title} - {task.description}
+                                    <button className="btn btn-danger btn-sm float-right" onClick={() => this.deleteTask(task.id)}>Delete</button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                );
+            }
+        }
+
+        ReactDOM.render(<TaskList />, document.getElementById('root'));
+    </script>
+</body>
+</html>

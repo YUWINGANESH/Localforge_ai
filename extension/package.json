@@ -1,0 +1,132 @@
+{
+  "name": "localforge-ai",
+  "displayName": "LocalForge-AI 2.0",
+  "description": "Local-First Autonomous AI Coding Agent for VS Code powered by Ollama",
+  "version": "2.0.0",
+  "publisher": "localforge",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "AI",
+    "Programming Languages",
+    "Machine Learning"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onView:localforge-ai-sidebar"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "localforge-ai",
+          "title": "LocalForge-AI",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "localforge-ai": [
+        {
+          "type": "webview",
+          "id": "localforge-ai-sidebar",
+          "name": "LocalForge-AI"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "localforge.checkStatus",
+        "title": "LocalForge: Check Backend Status",
+        "category": "LocalForge-AI"
+      },
+      {
+        "command": "localforge.refreshModels",
+        "title": "LocalForge: Refresh Ollama Models",
+        "category": "LocalForge-AI"
+      },
+      {
+        "command": "localforge.newChat",
+        "title": "LocalForge: New Conversation",
+        "category": "LocalForge-AI"
+      }
+    ],
+    "configuration": {
+      "title": "LocalForge-AI",
+      "properties": {
+        "localforge.backendUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:8765",
+          "description": "URL of the local LocalForge-AI Python backend"
+        },
+        "localforge.ollamaUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:11434",
+          "description": "URL of the local Ollama inference server"
+        },
+        "localforge.defaultModel": {
+          "type": "string",
+          "default": "qwen2.5-coder:7b",
+          "description": "Default local model name for code generation"
+        },
+        "localforge.contextWindow": {
+          "type": "number",
+          "default": 4096,
+          "minimum": 512,
+          "maximum": 32768,
+          "description": "Token context window size sent to Ollama"
+        },
+        "localforge.maxIterations": {
+          "type": "number",
+          "default": 16,
+          "minimum": 4,
+          "maximum": 64,
+          "description": "Maximum ReAct reasoning iterations per agent task"
+        },
+        "localforge.maxRepairAttempts": {
+          "type": "number",
+          "default": 4,
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Maximum self-repair attempts when tests fail"
+        },
+        "localforge.autoApprove": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically approve all file operations without user confirmation (use with caution)"
+        },
+        "localforge.requestTimeout": {
+          "type": "number",
+          "default": 300,
+          "minimum": 10,
+          "maximum": 600,
+          "description": "Ollama request timeout in seconds"
+        },
+        "localforge.maxObservationChars": {
+          "type": "number",
+          "default": 1800,
+          "minimum": 500,
+          "maximum": 8000,
+          "description": "Maximum characters of tool output fed back to the agent per step"
+        },
+        "localforge.streamingEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable token streaming for chat responses"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "npm run compile && node --test out/test/extension.test.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.4.5"
+  }
+}
